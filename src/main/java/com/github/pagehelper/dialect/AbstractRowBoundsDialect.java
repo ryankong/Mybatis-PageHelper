@@ -94,7 +94,7 @@ public abstract class AbstractRowBoundsDialect extends AbstractDialect {
     public String getCheckHasNextSql(MappedStatement ms, BoundSql boundSql, Object parameterObject, RowBounds rowBounds, CacheKey pageKey) {
         String sql = boundSql.getSql();
         //TODO 最好通过PagaParmas里生成，注意看其public Page getPage(Object parameterObject, RowBounds rowBounds) 方法
-        RowBounds nextPageRowBounds = new RowBounds(rowBounds.getOffset()+rowBounds.getLimit(),rowBounds.getLimit());
+        RowBounds nextPageRowBounds = new RowBounds(rowBounds.getOffset()+rowBounds.getLimit()+1,1);
         return getPageSql(sql, nextPageRowBounds, pageKey);
     }
 
