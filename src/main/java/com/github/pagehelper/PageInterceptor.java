@@ -119,6 +119,7 @@ public class PageInterceptor implements Interceptor {
                         return dialect.afterPage(new ArrayList(), parameter, rowBounds);
                     }
                 }
+
                 //判断是否需要进行分页查询
                 if (dialect.beforePage(ms, parameter, rowBounds)) {
                     //生成分页的缓存 key
@@ -134,10 +135,26 @@ public class PageInterceptor implements Interceptor {
                     }
                     //执行分页查询
                     resultList = executor.query(ms, parameter, RowBounds.DEFAULT, resultHandler, pageKey, pageBoundSql);
+
+                    //判断是否需要执行判断是否有下一页处理
+                    if (dialect.beforeCheckHasNext(ms,parameter,rowBounds)){
+                        BoundSql nextBoundSql = ms.getBoundSql(parameter);
+                        parameter = dialect.generateNextPageParameterObject(ms, parameter, nextBoundSql, pageKey);
+                        String checkHasNextSql = dialect.getCheckHasNextSql(ms, nextBoundSql, parameter, rowBounds, pageKey);
+                        BoundSql checkHasNextBoundSql = new BoundSql(configuration, checkHasNextSql, nextBoundSql.getParameterMappings(), parameter);
+                        //设置动态参数
+                        for (String key : additionalParameters.keySet()) {
+                            checkHasNextBoundSql.setAdditionalParameter(key, additionalParameters.get(key));
+                        }
+                        //执行判断，并设置是否有下一页
+                        dialect.afterCheckHasNext(executor.query(ms, parameter, RowBounds.DEFAULT, resultHandler, null, checkHasNextBoundSql).size()>0?true:false,parameter,rowBounds);
+                    }
                 } else {
                     //不执行分页的情况下，也不执行内存分页
                     resultList = executor.query(ms, parameter, RowBounds.DEFAULT, resultHandler, cacheKey, boundSql);
                 }
+
+
             } else {
                 //rowBounds用参数值，不使用分页插件处理时，仍然支持默认的内存分页
                 resultList = executor.query(ms, parameter, rowBounds, resultHandler, cacheKey, boundSql);

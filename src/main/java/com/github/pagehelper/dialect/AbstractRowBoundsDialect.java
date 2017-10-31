@@ -62,7 +62,20 @@ public abstract class AbstractRowBoundsDialect extends AbstractDialect {
     }
 
     @Override
+    public boolean beforeCheckHasNext(MappedStatement ms, Object parameterObject, RowBounds rowBounds) {
+        return false;
+    }
+
+    @Override
+    public boolean afterCheckHasNext(boolean hasNext, Object parameterObject, RowBounds rowBounds){return false;}
+
+    @Override
     public Object processParameterObject(MappedStatement ms, Object parameterObject, BoundSql boundSql, CacheKey pageKey) {
+        return parameterObject;
+    }
+
+    @Override
+    public Object generateNextPageParameterObject(MappedStatement ms, Object parameterObject, BoundSql boundSql, CacheKey pageKey) {
         return parameterObject;
     }
 
@@ -75,6 +88,14 @@ public abstract class AbstractRowBoundsDialect extends AbstractDialect {
     public String getPageSql(MappedStatement ms, BoundSql boundSql, Object parameterObject, RowBounds rowBounds, CacheKey pageKey) {
         String sql = boundSql.getSql();
         return getPageSql(sql, rowBounds, pageKey);
+    }
+
+    @Override
+    public String getCheckHasNextSql(MappedStatement ms, BoundSql boundSql, Object parameterObject, RowBounds rowBounds, CacheKey pageKey) {
+        String sql = boundSql.getSql();
+        //TODO 最好通过PagaParmas里生成，注意看其public Page getPage(Object parameterObject, RowBounds rowBounds) 方法
+        RowBounds nextPageRowBounds = new RowBounds(rowBounds.getOffset()+rowBounds.getLimit(),rowBounds.getLimit());
+        return getPageSql(sql, nextPageRowBounds, pageKey);
     }
 
     public abstract String getPageSql(String sql, RowBounds rowBounds, CacheKey pageKey);

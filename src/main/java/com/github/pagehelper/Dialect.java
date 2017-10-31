@@ -58,6 +58,7 @@ public interface Dialect {
      */
     boolean beforeCount(MappedStatement ms, Object parameterObject, RowBounds rowBounds);
 
+
     /**
      * 生成 count 查询 sql
      *
@@ -79,6 +80,40 @@ public interface Dialect {
      * @return true 继续分页查询，false 直接返回
      */
     boolean afterCount(long count, Object parameterObject, RowBounds rowBounds);
+
+    /**
+     * true 会进行是否存在下一页判断，false 会继续下面的 beforePage 判断
+     * @param ms
+     * @param parameterObject
+     * @param rowBounds
+     * @return
+     */
+    boolean beforeCheckHasNext(MappedStatement ms, Object parameterObject, RowBounds rowBounds);
+
+
+    /**
+     * 生成 校验下一页 查询 sql
+     *
+     * @param ms              MappedStatement
+     * @param boundSql        绑定 SQL 对象
+     * @param parameterObject 方法参数
+     * @param rowBounds       分页参数
+     * @param pageKey        page 缓存 key
+     * @return
+     */
+    String getCheckHasNextSql(MappedStatement ms, BoundSql boundSql, Object parameterObject, RowBounds rowBounds, CacheKey pageKey);
+
+
+    /**
+     * 进行完是否有下一页检查后
+     * @param hasNext
+     * @param parameterObject
+     * @param rowBounds
+     * @return
+     */
+    boolean afterCheckHasNext(boolean hasNext, Object parameterObject, RowBounds rowBounds);
+
+
 
     /**
      * 处理查询参数对象
@@ -112,6 +147,17 @@ public interface Dialect {
      * @return
      */
     String getPageSql(MappedStatement ms, BoundSql boundSql, Object parameterObject, RowBounds rowBounds, CacheKey pageKey);
+
+    /**
+     * 生成下一页的参数
+     *
+     * @param ms              MappedStatement
+     * @param parameterObject
+     * @param boundSql
+     * @param pageKey
+     * @return
+     */
+    Object generateNextPageParameterObject(MappedStatement ms, Object parameterObject, BoundSql boundSql, CacheKey pageKey);
 
     /**
      * 分页查询后，处理分页结果，拦截器中直接 return 该方法的返回值

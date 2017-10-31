@@ -28,7 +28,7 @@
 
     <groupId>com.github.pagehelper</groupId>
     <artifactId>pagehelper</artifactId>
-    <version>5.1.2</version>
+    <version>5.1.2-ryan-1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>pagehelper 5</name>
@@ -211,31 +211,45 @@
                         </executions>
                     </plugin>
                     <!-- GPG mvn clean deploy -P release -Dgpg.passphrase=YourPassphase-->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
+                    <!--<plugin>-->
+                        <!--<groupId>org.apache.maven.plugins</groupId>-->
+                        <!--<artifactId>maven-gpg-plugin</artifactId>-->
+                        <!--<executions>-->
+                            <!--<execution>-->
+                                <!--<id>sign-artifacts</id>-->
+                                <!--<phase>verify</phase>-->
+                                <!--<goals>-->
+                                    <!--<goal>sign</goal>-->
+                                <!--</goals>-->
+                            <!--</execution>-->
+                        <!--</executions>-->
+                    <!--</plugin>-->
+
                 </plugins>
             </build>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>oss</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-                </snapshotRepository>
-                <repository>
-                    <id>oss</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-            </distributionManagement>
+            <!--<distributionManagement>-->
+                <!--<snapshotRepository>-->
+                    <!--<id>oss</id>-->
+                    <!--<url>https://oss.sonatype.org/content/repositories/snapshots/</url>-->
+                <!--</snapshotRepository>-->
+                <!--<repository>-->
+                    <!--<id>oss</id>-->
+                    <!--<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>-->
+                <!--</repository>-->
+            <!--</distributionManagement>-->
         </profile>
     </profiles>
+    <!-- 替换为要发布到的地址 -->
+    <!--<distributionManagement>-->
+        <!--<snapshotRepository>-->
+            <!--<id>FP-snapshots</id>-->
+            <!--<name>FP_Snapshots</name>-->
+            <!--<url>http://172.17.22.229:9011/repository/maven-snapshots/</url>-->
+        <!--</snapshotRepository>-->
+        <!--<repository>-->
+            <!--<id>FP-release</id>-->
+            <!--<name>FP-release</name>-->
+            <!--<url>http://172.17.22.229:9011/repository/maven-release/</url>-->
+        <!--</repository>-->
+    <!--</distributionManagement>-->
 </project>

@@ -68,7 +68,7 @@ public abstract class PageMethod {
      * @return
      */
     public static long count(ISelect select) {
-        Page<?> page = startPage(1, -1, true);
+        Page<?> page = startPage(1, -1, true,false);
         select.doSelect();
         return page.getTotal();
     }
@@ -96,8 +96,9 @@ public abstract class PageMethod {
      * @param pageSize 每页显示数量
      */
     public static <E> Page<E> startPage(int pageNum, int pageSize) {
-        return startPage(pageNum, pageSize, true);
+        return startPage(pageNum, pageSize, true,false);
     }
+
 
     /**
      * 开始分页
@@ -107,7 +108,18 @@ public abstract class PageMethod {
      * @param count    是否进行count查询
      */
     public static <E> Page<E> startPage(int pageNum, int pageSize, boolean count) {
-        return startPage(pageNum, pageSize, count, null, null);
+        return startPage(pageNum, pageSize, count, null, null,false);
+    }
+    /**
+     * 开始分页
+     *
+     * @param pageNum  页码
+     * @param pageSize 每页显示数量
+     * @param count    是否进行count查询
+     * @param checkHasNext     是否进行下一页查询
+     */
+    public static <E> Page<E> startPage(int pageNum, int pageSize, boolean count, boolean checkHasNext) {
+        return startPage(pageNum, pageSize, count, null, null,checkHasNext);
     }
 
     /**
@@ -131,9 +143,10 @@ public abstract class PageMethod {
      * @param count        是否进行count查询
      * @param reasonable   分页合理化,null时用默认配置
      * @param pageSizeZero true且pageSize=0时返回全部结果，false时分页,null时用默认配置
+     * @param checkHasNext         是否判断是否有下一页
      */
-    public static <E> Page<E> startPage(int pageNum, int pageSize, boolean count, Boolean reasonable, Boolean pageSizeZero) {
-        Page<E> page = new Page<E>(pageNum, pageSize, count);
+    public static <E> Page<E> startPage(int pageNum, int pageSize, boolean count, Boolean reasonable, Boolean pageSizeZero,Boolean checkHasNext) {
+        Page<E> page = new Page<E>(pageNum, pageSize, count,checkHasNext);
         page.setReasonable(reasonable);
         page.setPageSizeZero(pageSizeZero);
         //当已经执行过orderBy的时候

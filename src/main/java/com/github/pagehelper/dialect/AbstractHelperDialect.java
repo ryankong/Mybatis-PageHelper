@@ -99,6 +99,19 @@ public abstract class AbstractHelperDialect extends AbstractDialect implements C
     }
 
     @Override
+    public boolean beforeCheckHasNext(MappedStatement ms, Object parameterObject, RowBounds rowBounds){
+        Page page = getLocalPage();
+        return !page.isOrderByOnly() && page.isCheckHasNext();
+    }
+
+    @Override
+    public boolean afterCheckHasNext(boolean hasNext, Object parameterObject, RowBounds rowBounds){
+        Page page = getLocalPage();
+        page.setHasNext(hasNext);
+        return true;
+    }
+
+    @Override
     public Object processParameterObject(MappedStatement ms, Object parameterObject, BoundSql boundSql, CacheKey pageKey) {
         //处理参数
         Page page = getLocalPage();
@@ -106,6 +119,10 @@ public abstract class AbstractHelperDialect extends AbstractDialect implements C
         if (page.isOrderByOnly()) {
             return parameterObject;
         }
+        return processPageParameter(ms, transferParameter(ms, parameterObject, boundSql), page, boundSql, pageKey);
+    }
+
+    private Map<String,Object> transferParameter(MappedStatement ms, Object parameterObject, BoundSql boundSql){
         Map<String, Object> paramMap = null;
         if (parameterObject == null) {
             paramMap = new HashMap<String, Object>();
@@ -141,7 +158,23 @@ public abstract class AbstractHelperDialect extends AbstractDialect implements C
                 }
             }
         }
-        return processPageParameter(ms, paramMap, page, boundSql, pageKey);
+        return paramMap;
+    }
+
+    /**
+     * 默认使用查询是否存在下一页数据记录的SQL
+     * 因此需要生成特定的下一页数据查询参数
+     * @param ms
+     * @param parameterObject
+     * @param boundSql
+     * @param pageKey
+     * @return
+     */
+    public Object generateNextPageParameterObject(MappedStatement ms, Object parameterObject, BoundSql boundSql, CacheKey pageKey){
+        Page page = getLocalPage();
+        //TODO 最好通过PagaParmas里生成，注意看其public Page getPage(Object parameterObject, RowBounds rowBounds) 方法
+        Page nextPage = new Page(page.getStartRow()+page.getPageSize()+1,1,false);
+        return processPageParameter(ms, transferParameter(ms, parameterObject, boundSql), nextPage, boundSql, pageKey);
     }
 
     /**
@@ -181,6 +214,24 @@ public abstract class AbstractHelperDialect extends AbstractDialect implements C
         return getPageSql(sql, page, pageKey);
     }
 
+    @Override
+    public String getCheckHasNextSql(MappedStatement ms, BoundSql boundSql, Object parameterObject, RowBounds rowBounds, CacheKey pageKey){
+        String sql = boundSql.getSql();
+        Page page = getLocalPage();
+        Page nextPage = new Page(page.getPageNum()+1,page.getPageSize(),false);
+        //支持 order by
+        String orderBy = page.getOrderBy();
+        if (StringUtil.isNotEmpty(orderBy)) {
+            pageKey.update(orderBy);
+            sql = OrderByParser.converToOrderBySql(sql, orderBy);
+        }
+        if (page.isOrderByOnly()) {
+            return sql;
+        }
+
+        return getPageSql(sql, nextPage, pageKey);
+    }
+
     /**
      * 单独处理分页部分
      *
@@ -190,6 +241,7 @@ public abstract class AbstractHelperDialect extends AbstractDialect implements C
      * @return
      */
     public abstract String getPageSql(String sql, Page page, CacheKey pageKey);
+
 
     @Override
     public Object afterPage(List pageList, Object parameterObject, RowBounds rowBounds) {

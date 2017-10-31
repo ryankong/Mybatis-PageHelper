@@ -83,6 +83,22 @@ public class PageHelper extends PageMethod implements Dialect {
     }
 
     @Override
+    public boolean beforeCheckHasNext(MappedStatement ms, Object parameterObject, RowBounds rowBounds) {
+        return autoDialect.getDelegate().beforeCheckHasNext(ms, parameterObject, rowBounds);
+    }
+
+    @Override
+    public String getCheckHasNextSql(MappedStatement ms, BoundSql boundSql, Object parameterObject, RowBounds rowBounds, CacheKey countKey) {
+        return autoDialect.getDelegate().getCheckHasNextSql(ms, boundSql, parameterObject, rowBounds, countKey);
+    }
+
+    @Override
+    public boolean afterCheckHasNext(boolean hasNext, Object parameterObject, RowBounds rowBounds){
+        return autoDialect.getDelegate().afterCheckHasNext(hasNext, parameterObject, rowBounds);
+    }
+
+
+    @Override
     public Object processParameterObject(MappedStatement ms, Object parameterObject, BoundSql boundSql, CacheKey pageKey) {
         return autoDialect.getDelegate().processParameterObject(ms, parameterObject, boundSql, pageKey);
     }
@@ -95,6 +111,11 @@ public class PageHelper extends PageMethod implements Dialect {
     @Override
     public String getPageSql(MappedStatement ms, BoundSql boundSql, Object parameterObject, RowBounds rowBounds, CacheKey pageKey) {
         return autoDialect.getDelegate().getPageSql(ms, boundSql, parameterObject, rowBounds, pageKey);
+    }
+
+    @Override
+    public Object generateNextPageParameterObject(MappedStatement ms, Object parameterObject, BoundSql boundSql, CacheKey pageKey) {
+        return autoDialect.getDelegate().generateNextPageParameterObject(ms, parameterObject, boundSql, pageKey);
     }
 
     public String getPageSql(String sql, Page page, RowBounds rowBounds, CacheKey pageKey) {

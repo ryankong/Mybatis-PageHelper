@@ -66,6 +66,17 @@ public class Page<E> extends ArrayList<E> implements Closeable {
      * 包含count查询
      */
     private boolean count = true;
+
+    /**
+     * 检查是否有下一页
+     */
+    private boolean checkHasNext = false;
+
+    /**
+     * 是否有下一页
+     */
+    private Boolean hasNext;
+
     /**
      * 分页合理化
      */
@@ -92,14 +103,18 @@ public class Page<E> extends ArrayList<E> implements Closeable {
     }
 
     public Page(int pageNum, int pageSize) {
-        this(pageNum, pageSize, true, null);
+        this(pageNum, pageSize, true, null,false);
     }
 
     public Page(int pageNum, int pageSize, boolean count) {
-        this(pageNum, pageSize, count, null);
+        this(pageNum, pageSize, count, null,false);
     }
 
-    private Page(int pageNum, int pageSize, boolean count, Boolean reasonable) {
+    public Page(int pageNum, int pageSize, boolean count, boolean checkHasNext) {
+        this(pageNum, pageSize, count,null, checkHasNext);
+    }
+
+    private Page(int pageNum, int pageSize, boolean count, Boolean reasonable, boolean checkHasNext) {
         super(0);
         if (pageNum == 1 && pageSize == Integer.MAX_VALUE) {
             pageSizeZero = true;
@@ -108,6 +123,7 @@ public class Page<E> extends ArrayList<E> implements Closeable {
         this.pageNum = pageNum;
         this.pageSize = pageSize;
         this.count = count;
+        this.checkHasNext = checkHasNext;
         calculateStartAndEndRow();
         setReasonable(reasonable);
     }
@@ -203,6 +219,15 @@ public class Page<E> extends ArrayList<E> implements Closeable {
         }
     }
 
+    public Boolean getHasNext() {
+        return hasNext;
+    }
+
+    public Page setHasNext(Boolean hasNext) {
+        this.hasNext = hasNext;
+        return this;
+    }
+
     public Boolean getReasonable() {
         return reasonable;
     }
@@ -261,6 +286,15 @@ public class Page<E> extends ArrayList<E> implements Closeable {
 
     public Page<E> setCount(boolean count) {
         this.count = count;
+        return this;
+    }
+
+    public boolean isCheckHasNext() {
+        return checkHasNext;
+    }
+
+    public Page<E> setCheckHasNext(boolean checkHasNext) {
+        this.checkHasNext = checkHasNext;
         return this;
     }
 
